@@ -1,9 +1,8 @@
-# Version string of this plugin (in Python style).
-__version__ = "1.0"
-
-# The unique plugin ID string is used in multiple places.
-# It also forms the base for all other ID strings (for states, actions, etc).
+__version__ = "1.1"
 PLUGIN_ID = "KillerBOSS.TPPlugin.DataParser"
+
+
+
 
 # Basic plugin metadata
 TP_PLUGIN_INFO = {
@@ -11,7 +10,6 @@ TP_PLUGIN_INFO = {
     "version": int(float(__version__) * 100),  # TP only recognizes integer version numbers
     "name": "Touch Portal DataParser",
     "id": PLUGIN_ID,
-    # Startup command, with default logging options read from configuration file (see main() for details)
     "plugin_start_cmd": "%TP_PLUGIN_FOLDER%TP_JsonParser\\TPJsonParser.exe @plugin_config.txt",
     "configuration": {
         "colorDark": "#f54242",
@@ -24,11 +22,15 @@ TP_PLUGIN_INFO = {
     }
 }
 
-# Setting(s) for this plugin. These could be either for users to
-# set, or to persist data between plugin runs (as read-only settings).
+
+
+
+
 TP_PLUGIN_SETTINGS = {}
 
-# This example only uses one Category for actions/etc., but multiple categories are supported also.
+
+
+
 TP_PLUGIN_CATEGORIES = {
     "main": {
         "id": PLUGIN_ID + ".main",
@@ -37,10 +39,12 @@ TP_PLUGIN_CATEGORIES = {
     }
 }
 
-# Action(s) which this plugin supports.
+
+
+
+
 TP_PLUGIN_ACTIONS = {
     "createHTTPListener": {
-        # "category" is optional, if omitted then this action will be added to all, or the only, category(ies)
         "category": "main",
         "id": PLUGIN_ID + ".act.createHTTPListener",
         "name": "Create HTTP Listener",
@@ -48,14 +52,10 @@ TP_PLUGIN_ACTIONS = {
         "type": "communicate",
         "tryInline": True,
         "doc": "createHTTPListener is a action that allows to setup a base connection and use it to make actual request.",
-        # "format" tokens like $[1] will be replaced in the generated JSON with the corresponding data id wrapped with "{$...$}".
-        # Numeric token values correspond to the order in which the data items are listed here, while text tokens correspond
-        # to the last part of a dotted data ID (the part after the last period; letters, numbers, and underscore allowed).
         "format": "Create listener name$[listenerName] host url$[host] and Header$[header]",
         "data": {
             "listenerName": {
                 "id": PLUGIN_ID + ".act.createHTTPListener.listenerName",
-                # "text" is the default type and could be omitted here
                 "type": "text",
                 "label": "listenerName",
                 "default": ""
@@ -74,6 +74,8 @@ TP_PLUGIN_ACTIONS = {
             }
         }
     },
+    
+    
     "setupRequest": {
         "category": "main",
         "id": PLUGIN_ID + ".act.setupRequest",
@@ -129,6 +131,8 @@ TP_PLUGIN_ACTIONS = {
             },
         }
     },
+    
+    
     "listenerControl": {
         "category": "main",
         "id": PLUGIN_ID + "act.listenerControl",
@@ -159,9 +163,11 @@ TP_PLUGIN_ACTIONS = {
             }
         }
     },
+    
+    
     "ParseData": {
         "category": "main",
-        "id": PLUGIN_ID + "act.ParseData",
+        "id": PLUGIN_ID + ".act.ParseData",
         "name": "Parsing data",
         "prefix": TP_PLUGIN_CATEGORIES["main"]["name"],
         "type": "communicate",
@@ -199,6 +205,8 @@ TP_PLUGIN_ACTIONS = {
             }
         }
     },
+    
+    
     "EditJson": {
         "category": "main",
         "id": PLUGIN_ID + ".act.editJson",
@@ -237,10 +245,17 @@ TP_PLUGIN_ACTIONS = {
     }
 }
 
+
+
+
+
 TP_PLUGIN_CONNECTORS = {}
 
-# Plugin static state(s). These are listed in the entry.tp file,
-# vs. dynamic states which would be created/removed at runtime.
+
+
+
+
+
 TP_PLUGIN_STATES = {
     "text": {
         "category": "main",
@@ -252,5 +267,8 @@ TP_PLUGIN_STATES = {
     }
 }
 
-# Plugin Event(s).
+
+
+
+
 TP_PLUGIN_EVENTS = {}

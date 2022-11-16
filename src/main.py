@@ -4,23 +4,14 @@ Touch Portal Plugin Example
 """
 
 import sys
-
-# Load the TP Python API. Note that TouchPortalAPI must be installed (eg. with pip)
-# _or_ be in a folder directly below this plugin file.
 import TouchPortalAPI as TP
-
-# Importing our python entry struct so we can get infomations of the plugin without copy and paste
-# So you can change a action id and it will update here.
-import TPPEntry
-
-# imports below are optional, to provide argument parsing and logging functionality
+from TPPEntry import PLUGIN_ID, TP_PLUGIN_CATEGORIES, TP_PLUGIN_SETTINGS, TP_PLUGIN_ACTIONS, TP_PLUGIN_STATES, TP_PLUGIN_EVENTS, TP_PLUGIN_INFO, __version__
 from argparse import ArgumentParser
 from TouchPortalAPI.logger import Logger
 
-# Create the Touch Portal API client.
 try:
     TPClient = TP.Client(
-        pluginId = TPPEntry.PLUGIN_ID,  # required ID of this plugin
+        pluginId = PLUGIN_ID,  # required ID of this plugin
         sleepPeriod = 0.05,    # allow more time than default for other processes
         autoClose = True,      # automatically disconnect when TP sends "closePlugin" message
         checkPluginId = True,  # validate destination of messages sent to this plugin
@@ -29,83 +20,226 @@ try:
     )
 except Exception as e:
     sys.exit(f"Could not create TP Client, exiting. Error was:\n{repr(e)}")
-# TPClient: TP.Client = None  # instance of the TouchPortalAPI Client, created in main()
 
-# Crate the (optional) global logger, an instance of `TouchPortalAPI::Logger` helper class.
-# Logging configuration is set up in main().
-g_log = Logger(name = TPPEntry.PLUGIN_ID)
 
-# Settings will be sent by TP upon initial connection to the plugin,
-# as well as whenever they change at runtime. This example uses a
-# shared function to handle both cases. See also onConnect() and onSettingUpdate()
+
+g_log = Logger(name = PLUGIN_ID)
+
+
 def handleSettings(settings, on_connect=False):
-    # the settings array from TP can just be flattened to a single dict,
-    # from:
-    #   [ {"Setting 1" : "value"}, {"Setting 2" : "value"} ]
-    # to:
-    #   { "Setting 1" : "value", "Setting 2" : "value" }
     settings = { list(settings[i])[0] : list(settings[i].values())[0] for i in range(len(settings)) }
     # now we can just get settings, and their values, by name
-    if (value := settings.get(TPPEntry.TP_PLUGIN_SETTINGS['example']['name'])) is not None:
+    if (value := settings.get(TP_PLUGIN_SETTINGS['example']['name'])) is not None:
         # this example doesn't do anything useful with the setting, just saves it
-        TPPEntry.TP_PLUGIN_SETTINGS['example']['value'] = value
+        TP_PLUGIN_SETTINGS['example']['value'] = value
 
 
-## TP Client event handler callbacks
 
-# Initial connection handler
+
+#--- On Startup ---#
 @TPClient.on(TP.TYPES.onConnect)
 def onConnect(data):
     g_log.info(f"Connected to TP v{data.get('tpVersionString', '?')}, plugin v{data.get('pluginVersion', '?')}.")
     g_log.debug(f"Connection: {data}")
     if settings := data.get('settings'):
         handleSettings(settings, True)
+        
+    Thread(target=stateUpdate).start()
 
-# Settings handler
+
+
+
+#--- Settings handler ---#
 @TPClient.on(TP.TYPES.onSettingUpdate)
 def onSettingUpdate(data):
     g_log.debug(f"Settings: {data}")
     if (settings := data.get('values')):
         handleSettings(settings, False)
 
-# Action handler
+
+
+#--- Action handler ---#
 @TPClient.on(TP.TYPES.onAction)
 def onAction(data):
+    global requestListener
+ #   print(data)
     g_log.debug(f"Action: {data}")
     # check that `data` and `actionId` members exist and save them for later use
     if not (action_data := data.get('data')) or not (aid := data.get('actionId')):
         return
 
-    if aid == TPPEntry.TP_PLUGIN_ACTIONS['example']['id']:
-        # set our example State text and color values with the data from this action
-        text = TPClient.getActionDataValue(action_data, TPPEntry.TP_PLUGIN_ACTIONS['example']['data']['text'])
-        color = TPClient.getActionDataValue(action_data, TPPEntry.TP_PLUGIN_ACTIONS['example']['data']['color'])
-        TPClient.stateUpdate(TPPEntry.TP_PLUGIN_STATES['text']['id'], text)
-        TPClient.stateUpdate(TPPEntry.TP_PLUGIN_STATES['color']['id'], color)
+# if aid == TP_PLUGIN_ACTIONS['example']['id']:
+#     # set our example State text and color values with the data from this action
+#     text = TPClient.getActionDataValue(action_data, TP_PLUGIN_ACTIONS['example']['data']['text'])
+#     color = TPClient.getActionDataValue(action_data, TP_PLUGIN_ACTIONS['example']['data']['color'])
+#     TPClient.stateUpdate(TP_PLUGIN_STATES['text']['id'], text)
+#     TPClient.stateUpdate(TP_PLUGIN_STATES['color']['id'], color)
+        
+        
+        
+        
+    if aid == TP_PLUGIN_ACTIONS['createHTTPListener']['id']:
+        if data['data'][0]['value'] != "" and data['data'][1]['value'] != "":
+            if not findListener(data['data'][0]['value']): # check if is already created
+                requestListener.append(
+                    {
+                        data['data'][0]['value']: {
+                            "host": data['data'][1]['value'],
+                            "header": data['data'][2]['value'],
+                            "thread":  Thread,
+                            "status": "standby"
+                        }
+                    }
+                )
+            
+    if aid == TP_PLUGIN_ACTIONS['setupRequest']['id']:
+        if data['data'][0]['value'] != "" and (listener := findListener(data['data'][0]['value'])):
+            listener[data['data'][0]['value']]['thread'] = Thread(target=makeRequests, args=(data['data'][1]['value'], data['data'][2]['value'],
+            data['data'][3]['value'], data['data'][4]['value'], data['data'][5]['value'], listener))
+            listener[data['data'][0]['value']]['thread'].start()
+        
+        
+        
+    if aid == TP_PLUGIN_ACTIONS['ParseData']['id']:
+        g_log.debug(f"Parse Data Action: {data}")
+        
+        if data['data'][0]['value'] == "Json":
+            parsedData = jsonPathfinder(data['data'][2]['value'], data['data'][1]['value'])
+            
+        elif data['data'][0]['value'] == "Html":
+            parsedData = HtmlParser(data['data'][2]['value'], data['data'][1]['value'])
+            
+        TPClient.createState(PLUGIN_ID + f".userState.{data['data'][3]['value']}", data['data'][3]['value'], str(parsedData))
+
+        g_log.debug(f"parsedData: {parsedData}")
     else:
         g_log.warning("Got unknown action ID: " + aid)
+        
+        
+    
+
+
+
+#################################---- FUNCTIONS ----#################################
+
+import requests
+from threading import Thread
+from time import sleep
+import json
+from functools import reduce
+from pyquery import PyQuery
+import re
+
+
+requestListener = []
+
+def findListener(listenerName):
+    for listener in requestListener:
+        if listenerName == list(listener.keys())[0]:
+            return listener
+    return None
+
+
+def jsonPathfinder(path, data):
+    data = json.loads(data)
+    # Find Everything inside of brackets
+    
+    ## without the need for ' or "   - this will allow for fewer mistakes on the user side of things.
+    pathlist= re.findall(r"\[(.*?)\]", path)
+    ##pathlist= re.findall(r"\[\'(.*?)\'\]", path)
+    # Return the value of the path ONLY if it exists
+    g_log.debug(f"pathlist: {pathlist}")
+    return reduce(lambda d, k: d.get(k, None) if isinstance(d, dict) else None, pathlist, data)
+
+
+def HtmlParser(html, path):
+    pq = PyQuery(html)
+    tag = pq(path)
+    
+    g_log.debug(f"tag: {tag.text()}")
+    return tag.text()
+
+
+def makeRequests(Method, endpoint, body, interval, result, listener):
+    listenerData = listener[list(listener.keys())[0]]
+    if result:
+        TPClient.createState(PLUGIN_ID + f".userState.{result}", result, "")
+        
+    if listener and listenerData:
+        while listenerData['status'] != "stop":
+            if Method == "GET":
+                requestResult = requests.get(url=listenerData["host"] + endpoint,
+                     headers=json.loads(listenerData["header"]) if listenerData["header"] else None,
+                      data=body)
+                TPClient.stateUpdate(PLUGIN_ID + f".userState.{result}", requestResult.text)
+                
+            elif Method == "POST":
+                requestResult = requests.post(url=listenerData["host"] + endpoint,
+                     headers=json.loads(listenerData["header"]) if listenerData["header"] else None,
+                      data=body)
+                TPClient.stateUpdate(PLUGIN_ID + f".userState.{result}", requestResult.text)
+                
+            elif Method == "PUT":
+                requestResult = requests.put(url=listenerData["host"] + endpoint,
+                     headers=json.loads(listenerData["header"]) if listenerData["header"] else None,
+                      data=body)
+                TPClient.stateUpdate(PLUGIN_ID + f".userState.{result}", requestResult.text)
+                
+            elif Method == "DELETE":
+                requestResult = requests.delete(url=listenerData["host"] + endpoint,
+                     headers=json.loads(listenerData["header"]) if listenerData["header"] else None,
+                      data=body)
+                TPClient.stateUpdate(PLUGIN_ID + f".userState.{result}", requestResult.text)
+            sleep(int(interval))
+            
+        if listenerData['status'] == "stop":
+            pass # maybe remove all states thats created by the listener
+
+
+def stateUpdate():
+    while TPClient.isConnected():
+        if requestListener and PLUGIN_ID + ".SetuprequestUsingListener.listoflistener" not in TPClient.choiceUpdateList:
+            g_log.debug(requestListener)
+            
+            if (listofListener := [list(x.keys())[0] for x in requestListener]) != TPClient.choiceUpdateList:
+                TPClient.choiceUpdate(PLUGIN_ID + ".SetuprequestUsingListener.listoflistener", listofListener)
+        sleep(0.2)
+
+
+
+
+
+#################################---- END FUNCTIONS ----#################################
+
+
+
+
 
 # Shutdown handler
 @TPClient.on(TP.TYPES.onShutdown)
 def onShutdown(data):
     g_log.info('Received shutdown event from TP Client.')
     # We do not need to disconnect manually because we used `autoClose = True`
-    # when constructing TPClient()
-    # TPClient.disconnect()
+
 
 # Error handler
 @TPClient.on(TP.TYPES.onError)
 def onError(exc):
     g_log.error(f'Error in TP Client event handler: {repr(exc)}')
 
-## main
 
+
+
+
+
+
+## main
 def main():
     global TPClient, g_log
     ret = 0  # sys.exit() value
 
     # default log file destination
-    logFile = f"./{TPPEntry.PLUGIN_ID}.log"
+    logFile = f"./{PLUGIN_ID}.log"
     # default log stream destination
     logStream = sys.stdout
 
@@ -158,29 +292,23 @@ def main():
     TPClient.setLogLevel(logLevel)
 
     # ready to go
-    g_log.info(f"Starting {TPPEntry.TP_PLUGIN_INFO['name']} v{TPPEntry.__version__} on {sys.platform}.")
+    g_log.info(f"Starting {TP_PLUGIN_INFO['name']} v{__version__} on {sys.platform}.")
 
     try:
-        # Connect to Touch Portal desktop application.
-        # If connection succeeds, this method will not return (blocks) until the client is disconnected.
         TPClient.connect()
         g_log.info('TP Client closed.')
     except KeyboardInterrupt:
         g_log.warning("Caught keyboard interrupt, exiting.")
     except Exception:
-        # This will catch and report any critical exceptions in the base TPClient code,
-        # _not_ exceptions in this plugin's event handlers (use onError(), above, for that).
         from traceback import format_exc
         g_log.error(f"Exception in TP Client:\n{format_exc()}")
         ret = -1
     finally:
-        # Make sure TP Client is stopped, this will do nothing if it is already disconnected.
         TPClient.disconnect()
 
-    # TP disconnected, clean up.
     del TPClient
 
-    g_log.info(f"{TPPEntry.TP_PLUGIN_INFO['name']} stopped.")
+    g_log.info(f"{TP_PLUGIN_INFO['name']} stopped.")
     return ret
 
 
