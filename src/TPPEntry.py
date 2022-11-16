@@ -1,0 +1,256 @@
+# Version string of this plugin (in Python style).
+__version__ = "1.0"
+
+# The unique plugin ID string is used in multiple places.
+# It also forms the base for all other ID strings (for states, actions, etc).
+PLUGIN_ID = "KillerBOSS.TPPlugin.DataParser"
+
+# Basic plugin metadata
+TP_PLUGIN_INFO = {
+    "sdk": 6,
+    "version": int(float(__version__) * 100),  # TP only recognizes integer version numbers
+    "name": "Touch Portal DataParser",
+    "id": PLUGIN_ID,
+    # Startup command, with default logging options read from configuration file (see main() for details)
+    "plugin_start_cmd": "%TP_PLUGIN_FOLDER%TP_JsonParser\\TPJsonParser.exe @plugin_config.txt",
+    "configuration": {
+        "colorDark": "#f54242",
+        "colorLight": "#f5a442"
+    },
+    "doc": {
+        "repository": "KillerBOSS2019:TP-DataParser",
+        "Install": "1. Goto [Releases](https://github.com/KillerBOSS2019/TP-DataParser/releases) and Download latest version for your system.\n 2. After downloading the .tpp file goto open TouchPortal GUI and click on the gear icon and click `Import Plug-in`\n 3. After imported the plugin you may or may not need to restart TouchPortal but it should pop up something says do u want to allow this plugin to run. Click `Trust Always`",
+        "description": "TP-DataParser allows you to parse and edit Json or HTML formatted data. If you have other type of data that aren't on the list feel free send a request to me. and I'll try my best!."
+    }
+}
+
+# Setting(s) for this plugin. These could be either for users to
+# set, or to persist data between plugin runs (as read-only settings).
+TP_PLUGIN_SETTINGS = {}
+
+# This example only uses one Category for actions/etc., but multiple categories are supported also.
+TP_PLUGIN_CATEGORIES = {
+    "main": {
+        "id": PLUGIN_ID + ".main",
+        "name" : "Data Parser",
+        # "imagepath" : "icon-24.png"
+    }
+}
+
+# Action(s) which this plugin supports.
+TP_PLUGIN_ACTIONS = {
+    "createHTTPListener": {
+        # "category" is optional, if omitted then this action will be added to all, or the only, category(ies)
+        "category": "main",
+        "id": PLUGIN_ID + ".act.createHTTPListener",
+        "name": "Create HTTP Listener",
+        "prefix": TP_PLUGIN_CATEGORIES["main"]["name"],
+        "type": "communicate",
+        "tryInline": True,
+        "doc": "createHTTPListener is a action that allows to setup a base connection and use it to make actual request.",
+        # "format" tokens like $[1] will be replaced in the generated JSON with the corresponding data id wrapped with "{$...$}".
+        # Numeric token values correspond to the order in which the data items are listed here, while text tokens correspond
+        # to the last part of a dotted data ID (the part after the last period; letters, numbers, and underscore allowed).
+        "format": "Create listener name$[listenerName] host url$[host] and Header$[header]",
+        "data": {
+            "listenerName": {
+                "id": PLUGIN_ID + ".act.createHTTPListener.listenerName",
+                # "text" is the default type and could be omitted here
+                "type": "text",
+                "label": "listenerName",
+                "default": ""
+            },
+            "host": {
+                "id": PLUGIN_ID + ".act.createHTTPListener.host",
+                "type": "text",
+                "label": "hosturl",
+                "default": ""
+            },
+            "header": {
+                "id": PLUGIN_ID + ".act.createHTTPListener.header",
+                "type": "text",
+                "label": "header",
+                "default": ""
+            }
+        }
+    },
+    "setupRequest": {
+        "category": "main",
+        "id": PLUGIN_ID + ".act.setupRequest",
+        "name": "Setup endpoint calls using listener",
+        "prefix": TP_PLUGIN_CATEGORIES["main"]["name"],
+        "type": "communicate",
+        "tryInline": True,
+        "format": "Use$[listeners]$[requestMethod] to endpoint$[endpoint]and optional body$[body]and request every[$intervel]seconds and save result to$[result]",
+        "doc": "This will use listener that you've created using `Create HTTP Listener` action as a base. And then use this to actually send request to a endpoint with a intervel aka it will automatically update x seconds and save the result.",
+        "data": {
+            "listeners": {
+                "id": PLUGIN_ID + ".act.setupRequest.listeners",
+                "type": "choice",
+                "label": "list of listeners",
+                "default": "",
+                "valueChoices": []
+            },
+            "requestMethod": {
+                "id": PLUGIN_ID + ".act.setupRequest.requestMethod",
+                "type": "choice",
+                "label": "list of http methods",
+                "default": "GET",
+                "valueChoices": [
+                    "GET",
+                    "POST",
+                    "PUT",
+                    "DELETE"
+                ]
+            },
+            "endpoint": {
+                "id": PLUGIN_ID + ".act.setupRequest.endpoint",
+                "type": "text",
+                "label": "endpoint",
+                "default": "/",
+            },
+            "body": {
+                "id": PLUGIN_ID + ".act.setupRequest.body",
+                "type": "text",
+                "label": "body data",
+                "default": "",
+            },
+            "intervel": {
+                "id": PLUGIN_ID + ".act.setupRequest.intervel",
+                "type": "text",
+                "label": "update interval",
+                "default": "5",
+            },
+            "result": {
+                "id": PLUGIN_ID + ".act.setupRequest.result",
+                "type": "text",
+                "label": "save result",
+                "default": "",
+            },
+        }
+    },
+    "listenerControl": {
+        "category": "main",
+        "id": PLUGIN_ID + "act.listenerControl",
+        "name": "Resume, Pause or Delete a listener",
+        "prefix": TP_PLUGIN_CATEGORIES["main"]["name"],
+        "type": "communicate",
+        "tryInline": True,
+        "format": "$[listenerControl] $[listeners] update",
+        "doc": "This will Pause, Resume, and Delete a listener. once deleted it will remove all the states that's created from this listener",
+        "data": {
+            "listenerControl": {
+                "id": PLUGIN_ID + ".act.listenerControl.listenerControl",
+                "type": "choice",
+                "label": "list of listener controls",
+                "default": "Delete",
+                "valueChoices": [
+                    "Pause",
+                    "Resume",
+                    "Delete"
+                ]
+            },
+            "listeners": {
+                "id": PLUGIN_ID + ".act.listenerControl.listeners",
+                "type": "choice",
+                "label": "list of listeners",
+                "default": "",
+                "valueChoices": []
+            }
+        }
+    },
+    "ParseData": {
+        "category": "main",
+        "id": PLUGIN_ID + "act.ParseData",
+        "name": "Parsing data",
+        "prefix": TP_PLUGIN_CATEGORIES["main"]["name"],
+        "type": "communicate",
+        "tryInline": True,
+        "format": "Parse$[dataType]data$[data]to get$[dataPath]and save result to$[result]",
+        "doc": "ParseData action allows you to get specific data field from Json or HTML. for example {'website host': 'blah blah'} you can get value of `website host` which is `blah blah`.",
+        "data": {
+            "dataType": {
+                "id": PLUGIN_ID + ".act.ParseData.dataType",
+                "type": "choice",
+                "label": "data Type",
+                "default": "Json",
+                "valueChoices": [
+                    "Json",
+                    "Html"
+                ]
+            },
+            "data": {
+                "id": PLUGIN_ID + ".act.ParseData.data",
+                "type": "text",
+                "label": "data wants to parse",
+                "default": ""
+            },
+            "dataPath": {
+                "id": PLUGIN_ID + ".act.ParseData.dataPath",
+                "type": "text",
+                "label": "data wants to get",
+                "default": ""
+            },
+            "result": {
+                "id": PLUGIN_ID + ".act.ParseData.result",
+                "type": "text",
+                "label": "saving data",
+                "default": ""
+            }
+        }
+    },
+    "EditJson": {
+        "category": "main",
+        "id": PLUGIN_ID + ".act.editJson",
+        "name": "Editing json data field",
+        "prefix": TP_PLUGIN_CATEGORIES["main"]["name"],
+        "type": "communicate",
+        "tryInline": True,
+        "format": "Change $[data] at path$[jsonPath] to $[newData] and save to$[result]",
+        "doc": "EditJson allows you to change specific json field to a new data. for example if I have `{'name': 'someone'} I can change from `someone` to `something` as a example.",
+        "data": {
+            "data": {
+                "id": PLUGIN_ID + ".act.editJson.data",
+                "type": "text",
+                "label": "data wants to parse",
+                "default": ""
+            },
+            "newData": {
+                "id": PLUGIN_ID + ".act.editJson.newData",
+                "type": "text",
+                "label": "new data",
+                "default": ""
+            },
+            "jsonPath": {
+                "id": PLUGIN_ID + ".act.editJson.jsonPath",
+                "type": "text",
+                "label": "data wants to get",
+                "default": ""
+            },
+            "result": {
+                "id": PLUGIN_ID + ".act.editJson.result",
+                "type": "text",
+                "label": "saving data",
+                "default": ""
+            }
+        }
+    }
+}
+
+TP_PLUGIN_CONNECTORS = {}
+
+# Plugin static state(s). These are listed in the entry.tp file,
+# vs. dynamic states which would be created/removed at runtime.
+TP_PLUGIN_STATES = {
+    "text": {
+        "category": "main",
+        "id": PLUGIN_ID + ".state.totalListenerCreated",
+        "type": "text",
+        "desc": "DataParser total listener created",
+        "doc": "Shows total amount of listener that you've created.",
+        "default": "0"
+    }
+}
+
+# Plugin Event(s).
+TP_PLUGIN_EVENTS = {}

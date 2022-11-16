@@ -1,0 +1,211 @@
+{
+  "sdk": 6,
+  "version": 100,
+  "name": "Touch Portal DataParser",
+  "id": "KillerBOSS.TPPlugin.DataParser",
+  "configuration": {
+    "colorDark": "#f54242",
+    "colorLight": "#f5a442"
+  },
+  "plugin_start_cmd": "%TP_PLUGIN_FOLDER%TP_JsonParser\\TPJsonParser.exe @plugin_config.txt",
+  "categories": [
+    {
+      "id": "KillerBOSS.TPPlugin.DataParser.main",
+      "name": "Data Parser",
+      "actions": [
+        {
+          "id": "KillerBOSS.TPPlugin.DataParser.act.createHTTPListener",
+          "name": "Create HTTP Listener",
+          "prefix": "Data Parser",
+          "type": "communicate",
+          "format": "Create listener name{$KillerBOSS.TPPlugin.DataParser.act.createHTTPListener.listenerName$} host url{$KillerBOSS.TPPlugin.DataParser.act.createHTTPListener.host$} and Header{$KillerBOSS.TPPlugin.DataParser.act.createHTTPListener.header$}",
+          "tryInline": true,
+          "data": [
+            {
+              "id": "KillerBOSS.TPPlugin.DataParser.act.createHTTPListener.listenerName",
+              "type": "text",
+              "label": "listenerName",
+              "default": ""
+            },
+            {
+              "id": "KillerBOSS.TPPlugin.DataParser.act.createHTTPListener.host",
+              "type": "text",
+              "label": "hosturl",
+              "default": ""
+            },
+            {
+              "id": "KillerBOSS.TPPlugin.DataParser.act.createHTTPListener.header",
+              "type": "text",
+              "label": "header",
+              "default": ""
+            }
+          ]
+        },
+        {
+          "id": "KillerBOSS.TPPlugin.DataParser.act.setupRequest",
+          "name": "Setup endpoint calls using listener",
+          "prefix": "Data Parser",
+          "type": "communicate",
+          "format": "Use{$KillerBOSS.TPPlugin.DataParser.act.setupRequest.listeners$}{$KillerBOSS.TPPlugin.DataParser.act.setupRequest.requestMethod$} to endpoint{$KillerBOSS.TPPlugin.DataParser.act.setupRequest.endpoint$}and optional body{$KillerBOSS.TPPlugin.DataParser.act.setupRequest.body$}and request every[$intervel]seconds and save result to{$KillerBOSS.TPPlugin.DataParser.act.setupRequest.result$}",
+          "tryInline": true,
+          "data": [
+            {
+              "id": "KillerBOSS.TPPlugin.DataParser.act.setupRequest.listeners",
+              "type": "choice",
+              "label": "list of listeners",
+              "default": "",
+              "valueChoices": []
+            },
+            {
+              "id": "KillerBOSS.TPPlugin.DataParser.act.setupRequest.requestMethod",
+              "type": "choice",
+              "label": "list of http methods",
+              "default": "GET",
+              "valueChoices": [
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE"
+              ]
+            },
+            {
+              "id": "KillerBOSS.TPPlugin.DataParser.act.setupRequest.endpoint",
+              "type": "text",
+              "label": "endpoint",
+              "default": "/"
+            },
+            {
+              "id": "KillerBOSS.TPPlugin.DataParser.act.setupRequest.body",
+              "type": "text",
+              "label": "body data",
+              "default": ""
+            },
+            {
+              "id": "KillerBOSS.TPPlugin.DataParser.act.setupRequest.intervel",
+              "type": "text",
+              "label": "update interval",
+              "default": "5"
+            },
+            {
+              "id": "KillerBOSS.TPPlugin.DataParser.act.setupRequest.result",
+              "type": "text",
+              "label": "save result",
+              "default": ""
+            }
+          ]
+        },
+        {
+          "id": "KillerBOSS.TPPlugin.DataParseract.listenerControl",
+          "name": "Resume, Pause or Delete a listener",
+          "prefix": "Data Parser",
+          "type": "communicate",
+          "format": "{$KillerBOSS.TPPlugin.DataParser.act.listenerControl.listenerControl$} {$KillerBOSS.TPPlugin.DataParser.act.listenerControl.listeners$} update",
+          "tryInline": true,
+          "data": [
+            {
+              "id": "KillerBOSS.TPPlugin.DataParser.act.listenerControl.listenerControl",
+              "type": "choice",
+              "label": "list of listener controls",
+              "default": "Delete",
+              "valueChoices": [
+                "Pause",
+                "Resume",
+                "Delete"
+              ]
+            },
+            {
+              "id": "KillerBOSS.TPPlugin.DataParser.act.listenerControl.listeners",
+              "type": "choice",
+              "label": "list of listeners",
+              "default": "",
+              "valueChoices": []
+            }
+          ]
+        },
+        {
+          "id": "KillerBOSS.TPPlugin.DataParseract.ParseData",
+          "name": "Parsing data",
+          "prefix": "Data Parser",
+          "type": "communicate",
+          "format": "Parse{$KillerBOSS.TPPlugin.DataParser.act.ParseData.dataType$}data{$KillerBOSS.TPPlugin.DataParser.act.ParseData.data$}to get{$KillerBOSS.TPPlugin.DataParser.act.ParseData.dataPath$}and save result to{$KillerBOSS.TPPlugin.DataParser.act.ParseData.result$}",
+          "tryInline": true,
+          "data": [
+            {
+              "id": "KillerBOSS.TPPlugin.DataParser.act.ParseData.dataType",
+              "type": "choice",
+              "label": "data Type",
+              "default": "Json",
+              "valueChoices": [
+                "Json",
+                "Html"
+              ]
+            },
+            {
+              "id": "KillerBOSS.TPPlugin.DataParser.act.ParseData.data",
+              "type": "text",
+              "label": "data wants to parse",
+              "default": ""
+            },
+            {
+              "id": "KillerBOSS.TPPlugin.DataParser.act.ParseData.dataPath",
+              "type": "text",
+              "label": "data wants to get",
+              "default": ""
+            },
+            {
+              "id": "KillerBOSS.TPPlugin.DataParser.act.ParseData.result",
+              "type": "text",
+              "label": "saving data",
+              "default": ""
+            }
+          ]
+        },
+        {
+          "id": "KillerBOSS.TPPlugin.DataParser.act.editJson",
+          "name": "Editing json data field",
+          "prefix": "Data Parser",
+          "type": "communicate",
+          "format": "Change {$KillerBOSS.TPPlugin.DataParser.act.editJson.data$} at path{$KillerBOSS.TPPlugin.DataParser.act.editJson.jsonPath$} to {$KillerBOSS.TPPlugin.DataParser.act.editJson.newData$} and save to{$KillerBOSS.TPPlugin.DataParser.act.editJson.result$}",
+          "tryInline": true,
+          "data": [
+            {
+              "id": "KillerBOSS.TPPlugin.DataParser.act.editJson.data",
+              "type": "text",
+              "label": "data wants to parse",
+              "default": ""
+            },
+            {
+              "id": "KillerBOSS.TPPlugin.DataParser.act.editJson.newData",
+              "type": "text",
+              "label": "new data",
+              "default": ""
+            },
+            {
+              "id": "KillerBOSS.TPPlugin.DataParser.act.editJson.jsonPath",
+              "type": "text",
+              "label": "data wants to get",
+              "default": ""
+            },
+            {
+              "id": "KillerBOSS.TPPlugin.DataParser.act.editJson.result",
+              "type": "text",
+              "label": "saving data",
+              "default": ""
+            }
+          ]
+        }
+      ],
+      "states": [
+        {
+          "id": "KillerBOSS.TPPlugin.DataParser.state.totalListenerCreated",
+          "type": "text",
+          "desc": "DataParser total listener created",
+          "default": "0"
+        }
+      ],
+      "events": [],
+      "connectors": []
+    }
+  ],
+  "settings": []
+}
