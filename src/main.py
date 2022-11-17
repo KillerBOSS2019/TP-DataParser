@@ -111,6 +111,24 @@ def onAction(data):
         TPClient.createState(PLUGIN_ID + f".userState.{data['data'][3]['value']}", data['data'][3]['value'], str(parsedData))
 
         g_log.debug(f"parsedData: {parsedData}")
+
+
+
+    if aid == TP_PLUGIN_ACTIONS['EditJson']['id']:
+        the_data = data['data'][2]['value']
+        path_to_find = data['data'][0]['value']
+        change_to = data['data'][1]['value']
+        
+        pathlist = get_pathlist(path_to_find)
+        
+        ## Loading the data into a json object
+        json_data = json.loads(the_data)
+        
+        # replacing the data in json and then sending it back to TP
+        json_data[pathlist[0]][pathlist[1]] = change_to
+        TPClient.createState(PLUGIN_ID + f".userState.{data['data'][3]['value']}", data['data'][3]['value'], str(json_data))
+       
+        g_log.info(f"Edit Json Action: {data}")
     else:
         g_log.warning("Got unknown action ID: " + aid)
 
@@ -130,12 +148,19 @@ def findListener(listenerName):
     return None
 
 
+def get_pathlist(path):
+    """ 
+    Find Everything inside of brackets which we utilize for our path
+    """
+    pathlist= re.findall(r"\[(.*?)\]", path)
+    #  without the need for ' or "   - this will allow for fewer mistakes on the user side of things.
+    ##pathlist= re.findall(r"\[\'(.*?)\'\]", path)
+    return pathlist
+
 def jsonPathfinder(path, data):
     data = json.loads(data)
-    # Find Everything inside of brackets which we utilize for our path
-    ## without the need for ' or "   - this will allow for fewer mistakes on the user side of things.
-    pathlist= re.findall(r"\[(.*?)\]", path)
-    ##pathlist= re.findall(r"\[\'(.*?)\'\]", path)
+    pathlist= get_pathlist(path)
+    
     
     # Return the value of the path ONLY if it exists
     g_log.debug(f"pathlist: {pathlist}")
