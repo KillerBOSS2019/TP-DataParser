@@ -2,12 +2,20 @@
 """
 Touch Portal Plugin Example
 """
-
-import sys
-import TouchPortalAPI as TP
-from TPPEntry import PLUGIN_ID, TP_PLUGIN_CATEGORIES, TP_PLUGIN_SETTINGS, TP_PLUGIN_ACTIONS, TP_PLUGIN_STATES, TP_PLUGIN_EVENTS, TP_PLUGIN_INFO, __version__
-from argparse import ArgumentParser
+from TPPEntry import PLUGIN_ID, TP_PLUGIN_SETTINGS, TP_PLUGIN_ACTIONS, TP_PLUGIN_INFO, __version__
 from TouchPortalAPI.logger import Logger
+from argparse import ArgumentParser
+import TouchPortalAPI as TP
+from threading import Thread
+from functools import reduce
+from pyquery import PyQuery
+from time import sleep
+import requests
+import json
+import sys
+import re
+
+
 
 try:
     TPClient = TP.Client(
@@ -58,31 +66,22 @@ def onSettingUpdate(data):
 
 
 
+
 #--- Action handler ---#
 @TPClient.on(TP.TYPES.onAction)
 def onAction(data):
     global requestListener
- #   print(data)
     g_log.debug(f"Action: {data}")
-    # check that `data` and `actionId` members exist and save them for later use
+    
+    
     if not (action_data := data.get('data')) or not (aid := data.get('actionId')):
         return
-
-# if aid == TP_PLUGIN_ACTIONS['example']['id']:
-#     # set our example State text and color values with the data from this action
-#     text = TPClient.getActionDataValue(action_data, TP_PLUGIN_ACTIONS['example']['data']['text'])
-#     color = TPClient.getActionDataValue(action_data, TP_PLUGIN_ACTIONS['example']['data']['color'])
-#     TPClient.stateUpdate(TP_PLUGIN_STATES['text']['id'], text)
-#     TPClient.stateUpdate(TP_PLUGIN_STATES['color']['id'], color)
-        
-        
-        
-        
+    
     if aid == TP_PLUGIN_ACTIONS['createHTTPListener']['id']:
         if data['data'][0]['value'] != "" and data['data'][1]['value'] != "":
             if not findListener(data['data'][0]['value']): # check if is already created
                 requestListener.append(
-                    {
+                       {   
                         data['data'][0]['value']: {
                             "host": data['data'][1]['value'],
                             "header": data['data'][2]['value'],
@@ -91,7 +90,7 @@ def onAction(data):
                         }
                     }
                 )
-            
+        
     if aid == TP_PLUGIN_ACTIONS['setupRequest']['id']:
         if data['data'][0]['value'] != "" and (listener := findListener(data['data'][0]['value'])):
             listener[data['data'][0]['value']]['thread'] = Thread(target=makeRequests, args=(data['data'][1]['value'], data['data'][2]['value'],
@@ -114,21 +113,12 @@ def onAction(data):
         g_log.debug(f"parsedData: {parsedData}")
     else:
         g_log.warning("Got unknown action ID: " + aid)
-        
-        
-    
+
+
 
 
 
 #################################---- FUNCTIONS ----#################################
-
-import requests
-from threading import Thread
-from time import sleep
-import json
-from functools import reduce
-from pyquery import PyQuery
-import re
 
 
 requestListener = []
@@ -142,11 +132,11 @@ def findListener(listenerName):
 
 def jsonPathfinder(path, data):
     data = json.loads(data)
-    # Find Everything inside of brackets
-    
+    # Find Everything inside of brackets which we utilize for our path
     ## without the need for ' or "   - this will allow for fewer mistakes on the user side of things.
     pathlist= re.findall(r"\[(.*?)\]", path)
     ##pathlist= re.findall(r"\[\'(.*?)\'\]", path)
+    
     # Return the value of the path ONLY if it exists
     g_log.debug(f"pathlist: {pathlist}")
     return reduce(lambda d, k: d.get(k, None) if isinstance(d, dict) else None, pathlist, data)
