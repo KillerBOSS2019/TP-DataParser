@@ -4,14 +4,14 @@ import json
 import os
 
 
-PLUGIN_MAIN = "./src/main.py"
+PLUGIN_MAIN = "main.py"
 
 
 PLUGIN_EXE_NAME = "DataParser"
 PLUGIN_EXE_ICON = "
 
 
-PLUGIN_ENTRY = "./src/entry.tp"  # Here we just use the same file as the plugin's main code since that contains all the definitions for entry.tp.
+PLUGIN_ENTRY = "entry.tp"  # Here we just use the same file as the plugin's main code since that contains all the definitions for entry.tp.
 PLUGIN_ENTRY_INDENT = 2
 PLUGIN_ROOT = "DataParser"
 PLUGIN_ICON = ""
