@@ -164,7 +164,7 @@ def get_pathlist(path):
 
 def write_json_to_file(data, filename, indent=4, ensure_ascii=False):
     with open(filename, 'w') as f:
-        json.dump(data, f, indent=indent, ensure_ascii=ensure_ascii)
+        json.dump(data, f, indent=int(indent), ensure_ascii=ensure_ascii)
 
 
 def jsonPathfinder(path, data):

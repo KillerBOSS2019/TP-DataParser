@@ -251,7 +251,7 @@ TP_PLUGIN_ACTIONS = {
         "prefix": TP_PLUGIN_CATEGORIES["main"]["name"],
         "type": "communicate",
         "tryInline": True,
-        "format": "Save $[data] to the file path$[filePath] with an indent of $[indent] - Ensure Ascii? $[ensureAscii]",
+        "format": "Save $[data] to the file path$[filePath] with an indent of $[indent] - Ensure Ascii? $[EnsureAscii]",
         "doc": "WriteJson allows you to write json to a file using a specified indent.",
         "data": {
             "data": {

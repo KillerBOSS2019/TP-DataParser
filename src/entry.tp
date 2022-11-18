@@ -199,7 +199,7 @@
           "name": "Save/Write Json File",
           "prefix": "Data Parser",
           "type": "communicate",
-          "format": "Save {$KillerBOSS.TPPlugin.DataParser.act.writeJson.data$} to the file path{$KillerBOSS.TPPlugin.DataParser.act.writeJson.filePath$} with an indent of {$KillerBOSS.TPPlugin.DataParser.act.writeJson.indent$} - Ensure Ascii? $[ensureAscii]",
+          "format": "Save {$KillerBOSS.TPPlugin.DataParser.act.writeJson.data$} to the file path{$KillerBOSS.TPPlugin.DataParser.act.writeJson.filePath$} with an indent of {$KillerBOSS.TPPlugin.DataParser.act.writeJson.indent$} - Ensure Ascii? {$KillerBOSS.TPPlugin.DataParser.act.writeJson.EnsureAscii$}",
           "tryInline": true,
           "data": [
             {
