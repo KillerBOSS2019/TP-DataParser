@@ -261,8 +261,8 @@ TP_PLUGIN_ACTIONS = {
                 "default": ""
             },
             "filePath": {
-                "id": PLUGIN_ID + ".act.editJson.filePath",
-                "type": "text",
+                "id": PLUGIN_ID + ".act.writeJson.filePath",
+                "type": "file",
                 "label": "File to save to",
                 "default": ""
             },
