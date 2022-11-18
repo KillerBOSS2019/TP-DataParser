@@ -8,7 +8,7 @@ PLUGIN_MAIN = "main.py"
 
 
 PLUGIN_EXE_NAME = "DataParser"
-PLUGIN_EXE_ICON = "
+PLUGIN_EXE_ICON = ""
 
 
 PLUGIN_ENTRY = "entry.tp"  # Here we just use the same file as the plugin's main code since that contains all the definitions for entry.tp.
