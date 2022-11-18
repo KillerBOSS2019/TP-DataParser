@@ -129,6 +129,10 @@ def onAction(data):
         TPClient.createState(PLUGIN_ID + f".userState.{data['data'][3]['value']}", data['data'][3]['value'], str(json_data))
        
         g_log.info(f"Edit Json Action: {data}")
+        
+        
+    if aid == TP_PLUGIN_ACTIONS['WriteJson']['id']:
+        write_json_to_file(data['data'][0]['value'], data['data'][1]['value'], data['data'][2]['value'])
     else:
         g_log.warning("Got unknown action ID: " + aid)
 
@@ -156,6 +160,12 @@ def get_pathlist(path):
     #  without the need for ' or "   - this will allow for fewer mistakes on the user side of things.
     ##pathlist= re.findall(r"\[\'(.*?)\'\]", path)
     return pathlist
+
+
+def write_json_to_file(data, filename, indent=4, ensure_ascii=False):
+    with open(filename, 'w') as f:
+        json.dump(data, f, indent=indent, ensure_ascii=ensure_ascii)
+
 
 def jsonPathfinder(path, data):
     data = json.loads(data)

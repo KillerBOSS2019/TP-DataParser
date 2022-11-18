@@ -242,6 +242,44 @@ TP_PLUGIN_ACTIONS = {
                 "default": ""
             }
         }
+    },
+    
+    "WriteJson": {
+        "category": "main",
+        "id": PLUGIN_ID + ".act.writeJson",
+        "name": "Save/Write Json File",
+        "prefix": TP_PLUGIN_CATEGORIES["main"]["name"],
+        "type": "communicate",
+        "tryInline": True,
+        "format": "Save $[data] to the file path$[filePath] with an indent of $[indent] - Ensure Ascii? $[ensureAscii]",
+        "doc": "WriteJson allows you to write json to a file using a specified indent.",
+        "data": {
+            "data": {
+                "id": PLUGIN_ID + ".act.writeJson.data",
+                "type": "text",
+                "label": "data to write",
+                "default": ""
+            },
+            "filePath": {
+                "id": PLUGIN_ID + ".act.editJson.filePath",
+                "type": "text",
+                "label": "File to save to",
+                "default": ""
+            },
+            "indent": {
+                "id": PLUGIN_ID + ".act.writeJson.indent",
+                "type": "text",
+                "label": "Json Indent amount",
+                "default": ""
+            },
+            'EnsureAscii': {
+                "id": PLUGIN_ID + ".act.writeJson.EnsureAscii",
+                "type": "text",
+                "label": "Ensure Ascii",
+                "default": "False",
+                "valueChoices": ["True", "False"]
+            }
+        }
     }
 }
 

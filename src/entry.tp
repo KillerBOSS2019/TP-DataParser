@@ -193,6 +193,44 @@
               "default": ""
             }
           ]
+        },
+        {
+          "id": "KillerBOSS.TPPlugin.DataParser.act.writeJson",
+          "name": "Save/Write Json File",
+          "prefix": "Data Parser",
+          "type": "communicate",
+          "format": "Save {$KillerBOSS.TPPlugin.DataParser.act.writeJson.data$} to the file path{$KillerBOSS.TPPlugin.DataParser.act.editJson.filePath$} with an indent of {$KillerBOSS.TPPlugin.DataParser.act.writeJson.indent$} - Ensure Ascii? $[ensureAscii]",
+          "tryInline": true,
+          "data": [
+            {
+              "id": "KillerBOSS.TPPlugin.DataParser.act.writeJson.data",
+              "type": "text",
+              "label": "data to write",
+              "default": ""
+            },
+            {
+              "id": "KillerBOSS.TPPlugin.DataParser.act.editJson.filePath",
+              "type": "text",
+              "label": "File to save to",
+              "default": ""
+            },
+            {
+              "id": "KillerBOSS.TPPlugin.DataParser.act.writeJson.indent",
+              "type": "text",
+              "label": "Json Indent amount",
+              "default": ""
+            },
+            {
+              "id": "KillerBOSS.TPPlugin.DataParser.act.writeJson.EnsureAscii",
+              "type": "text",
+              "label": "Ensure Ascii",
+              "default": "False",
+              "valueChoices": [
+                "True",
+                "False"
+              ]
+            }
+          ]
         }
       ],
       "states": [
