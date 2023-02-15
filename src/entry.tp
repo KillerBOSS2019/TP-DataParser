@@ -7,7 +7,7 @@
     "colorDark": "#f54242",
     "colorLight": "#f5a442"
   },
-  "plugin_start_cmd": "%TP_PLUGIN_FOLDER%TP_JsonParser\\TPJsonParser.exe @plugin_config.txt",
+  "plugin_start_cmd": "%TP_PLUGIN_FOLDER%DataParser\\DataParser.exe @plugin_config.txt",
   "categories": [
     {
       "id": "KillerBOSS.TPPlugin.DataParser.main",
