@@ -13,6 +13,7 @@
     - [States](#states)
         - [Data Parser](#KillerBOSS.TPPlugin.DataParser.mainstates)
   - [Installation Guide](#installation)
+  - [Examples](#examples)
   - [Bugs and Support](#bugs-and-suggestion)
   - [License](#license)
   
@@ -90,6 +91,46 @@ Default: <b>Json</b> Possible choices: ['Json', 'Html']</li>
 </details>
 
 <br>
+
+# Examples
+
+If you want to retrieve the 'state' of the light from the json below then you would use `[state]`, if you wanted to get the last_updated_again value then you would use `[context][last_updated_again]`
+![image](https://user-images.githubusercontent.com/76603653/219106189-a60c1b2b-7bd0-4dc7-94cf-356702226208.png)
+
+
+```
+{
+     "entity_id": "light.key_light",
+     "state": "on",
+     "attributes": {},
+     "last_changed": "2023-02-15T02:42:52.525643+00:00",
+     "last_updated": "2023-02-15T02:42:52.525643+00:00",
+     "context": {
+	"last_updated_again": "2023-02-15T02:42:52.525643+00:00"
+     }
+ }
+```
+--------------
+Another example when you want to access an array, you would simply do the same thing as above but add which array you are entering first
+`[0][context][last_updated_again]`
+![image](https://user-images.githubusercontent.com/76603653/219106035-6be88bdc-4dd5-4dc8-bc63-c425f62b4843.png)
+
+
+
+```
+[
+{
+     "entity_id": "light.key_light",
+     "state": "on",
+     "attributes": {},
+     "last_changed": "2023-02-15T02:42:52.525643+00:00",
+     "last_updated": "2023-02-15T02:42:52.525643+00:00",
+     "context": {
+	"last_updated_again": "2023-02-15T02:42:52.525643+00:00"
+     }
+ }
+]
+```
 
 # Installation
 1. Goto [Releases](https://github.com/KillerBOSS2019/TP-DataParser/releases) and Download latest version for your system.
