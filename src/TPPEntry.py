@@ -10,7 +10,7 @@ TP_PLUGIN_INFO = {
     "version": int(float(__version__) * 100),  # TP only recognizes integer version numbers
     "name": "Touch Portal DataParser",
     "id": PLUGIN_ID,
-    "plugin_start_cmd": "%TP_PLUGIN_FOLDER%TP_JsonParser\\TPJsonParser.exe @plugin_config.txt",
+    "plugin_start_cmd": "%TP_PLUGIN_FOLDER%DataParser\\DataParser.exe",
     "configuration": {
         "colorDark": "#f54242",
         "colorLight": "#f5a442"
