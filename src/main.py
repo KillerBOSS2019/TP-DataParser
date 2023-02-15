@@ -103,13 +103,14 @@ def onAction(data):
         g_log.debug(f"Parse Data Action: {data}")
         
         if data['data'][0]['value'] == "Json":
-            parsedData = jsonPathfinder(data['data'][2]['value'], data['data'][1]['value'])
+            load_json = json.loads(data['data'][1]['value'])
+            parsedData = get_value_at_path(load_json, data['data'][2]['value'])
             
         elif data['data'][0]['value'] == "Html":
             parsedData = HtmlParser(data['data'][2]['value'], data['data'][1]['value'])
-            
+        
         TPClient.createState(PLUGIN_ID + f".userState.{data['data'][3]['value']}", data['data'][3]['value'], str(parsedData))
-
+        
         g_log.debug(f"parsedData: {parsedData}")
 
 
@@ -138,8 +139,6 @@ def onAction(data):
 
 
 
-
-
 #################################---- FUNCTIONS ----#################################
 
 
@@ -162,19 +161,32 @@ def get_pathlist(path):
     return pathlist
 
 
+def get_value_at_path(data, path):
+    try:
+        path_parts= get_pathlist(path)
+        for part in path_parts:
+            if isinstance(data, list):
+                index = int(part)
+                data = data[index]
+            elif isinstance(data, dict):
+                data = data.get(part)
+                if data == None:
+                    g_log.error(f'Path cannot be found at {part}')
+        return data
+    except Exception as e:
+        g_log.error(f"Path cannot be found:  {e}")
+        return None
+
+
 def write_json_to_file(data, filename, indent=4, ensure_ascii=False):
-    with open(filename, 'w') as f:
-        json.dump(data, f, indent=int(indent), ensure_ascii=ensure_ascii)
-
-
-def jsonPathfinder(path, data):
+    """ Write data to json file not in string format"""
     data = json.loads(data)
-    pathlist= get_pathlist(path)
+    try:
+        with open(filename, 'w') as outfile:
+            json.dump(data, outfile, indent=indent, ensure_ascii=ensure_ascii)
+    except Exception as e:
+        g_log.error(f"Error writing json to file: {e}")
     
-    
-    # Return the value of the path ONLY if it exists
-    g_log.debug(f"pathlist: {pathlist}")
-    return reduce(lambda d, k: d.get(k, None) if isinstance(d, dict) else None, pathlist, data)
 
 
 def HtmlParser(html, path):
@@ -247,10 +259,10 @@ def onShutdown(data):
     # We do not need to disconnect manually because we used `autoClose = True`
 
 
-# Error handler
-@TPClient.on(TP.TYPES.onError)
-def onError(exc):
-    g_log.error(f'Error in TP Client event handler: {repr(exc)}')
+## Error handler
+#@TPClient.on(TP.TYPES.onError)
+#def onError(exc):
+#    g_log.error(f'Error in TP Client event handler: {repr(exc)}')
 
 
 
