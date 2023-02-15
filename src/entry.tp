@@ -1,6 +1,6 @@
 {
   "sdk": 6,
-  "version": 111,
+  "version": 120,
   "name": "Touch Portal DataParser",
   "id": "KillerBOSS.TPPlugin.DataParser",
   "configuration": {
