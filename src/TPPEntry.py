@@ -1,4 +1,4 @@
-__version__ = "1.1"
+__version__ = "1.2"
 PLUGIN_ID = "KillerBOSS.TPPlugin.DataParser"
 
 
